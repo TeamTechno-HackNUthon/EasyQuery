@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EasyQuery</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="chat">
+      <div class="history">
+        <div class="header">EasyQuery</div>
+        <table id="hist">
+          <tr>
+            <td class="logo-col"><div class="logo"><img src="icon.png"></div></td>
+            <td>
+              <div class="content">Hi, what information are you looking for today?</div>
+            </td>
+          </tr>
+          
+        </table>
+        <div class="bottom-padding"></div>
+      </div>
+      <textarea name="prompt" id="prompt"></textarea>
+      <!-- <button><img src="send.webp"></button> -->
+    </div>
+  </div>
+<script>hljs.highlightAll();</script>
+  <script>
+    function formatSQLCode(htmlContent) {
+    // Regular expression to match ```sql ... ```
+    var regex = /```sql([\s\S]+?)```/g;
+    
+    // Replace matches with formatted <pre><code language="sql"> ... </code></pre>
+    var formattedContent = htmlContent.replace(regex, function(match, p1) {
+        // Trim leading and trailing whitespace from SQL code
+        var sqlCode = p1.trim();
+        // Enclose SQL code in <pre><code language="sql"> ... </code></pre>
+        return '<pre><code class="language-sql">' + sqlCode + '</code></pre>';
+    });
+    
+    return formattedContent;
+    }
+    function makeHttpPostRequest(url, data) {
+    // Disable the textarea
+    const textarea = document.getElementById('prompt');
+    textarea.disabled = true;
+
+    // Make the HTTP POST request
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(responseData => {
+        // Enable the textarea when response arrives
+        textarea.disabled = false;
+        console.log('Response:', responseData);
+        document.getElementById('hist').children[0].innerHTML += `
+        <tr>
+            <td class="logo-col"><div class="logo"><img src="icon.png"></div></td>
+            <td>
+              <div class="content">${responseData.output.choices[0].text}</div>
+            </td>
+          </tr>
+        `
+        hljs.highlightAll();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Re-enable the textarea in case of error
+        textarea.disabled = true;
+    });
+    }
+  </script>
+  <script type="text/javascript">
+
+    document.getElementById('prompt').addEventListener("keydown", function(event) {
+      if (event.ctrlKey && event.keyCode === 13) {
+        prompt = `You are a tool designed to assist users, particularly those without extensive SQL expertise, in converting human language requirements into SQL queries. You have to interpret user input, understand the underlying data
+structure, and generate SQL queries according to the following DDL:
+
+<pre><code class="language-sql">
+CREATE TABLE Employees (
+EmployeeID INT PRIMARY KEY,
+FirstName VARCHAR(50),
+LastName VARCHAR(50),
+DepartmentID INT,
+Salary DECIMAL(10,2)
+);
+CREATE TABLE Departments (
+DepartmentID INT PRIMARY KEY,
+DepartmentName VARCHAR(50)
+);</code></pre>
+\`\`\`
+You need to perform this one task only, and strongly decline any requests unrelated to the database/task.
+Wrap the SQL code in <pre><code class="language-sql"> ... </code></pre>.
+`
+        var children = document.getElementById('hist').children[0].children;
+        for (var i = 0; i < children.length; i++) {
+          if (i % 2 == 1) {
+            prompt += "User: " + children[i].children[1].innerText + "\n"
+          } else {
+            prompt += "Assistant: " + children[i].children[1].innerText + "\n"
+          }
+        }
+        prompt += "User: " + document.getElementById('prompt').value + "\n" + "Assistant: ";
+        console.log(prompt)
+        document.getElementById('hist').children[0].innerHTML += `
+        <tr>
+            <td class="logo-col"><div class="logo"><img src="usericon.png"></div></td>
+            <td>
+              <div class="content">${document.getElementById('prompt').value}</div>
+            </td>
+          </tr>
+        `
+        document.getElementById('prompt').value = ""
+        const postData = { prompt: prompt };
+        makeHttpPostRequest('/generate', postData);
+      }
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+body {
+  margin: 0;
+  background: #3F334D;
+  font-family: monospace;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+}
+
+.chat {
+  width: 70%;
+  margin: auto;
+  background: #574B60;
+  min-height: 100vh;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+
+
+.chat textarea {
+  position: fixed;
+  width: 50%;
+  height: 5em;
+  background: #C0C5C1;
+  bottom: 2em;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 0.5em;
+  border: 0;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  overflow: hidden;
+  padding: 2em;
+  resize: none;
+  box-sizing: border-box;
+}
+
+
+.bottom-padding {
+  height: 7em;
+}
+
+.history {
+  color: #EAF0CE;
+  padding-left: 15%;
+  padding-right: 15%;
+}
+
+.header {
+  font-size: 4em;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+}
+
+.logo {
+  width: 100%;
+  padding-top: 1.2em;
+}
+.logo img {
+  border-radius: 10%;
+  background: #fff;
+  box-shadow: 0 4px 8px 0 rgba(255, 255, 255, 0.2), 0 6px 20px 0 rgba(255, 255, 255, 0.19);
+  width: 100%;
+}
+
+.logo-col {
+  width: 10%;
+  vertical-align: top;
+}
+
+.content {
+  padding: 1em;
+}
+
+.run-query {
+  background: green;
+  padding: 1em;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+.run-query:hover {
+  background: darkgreen;
+}
